@@ -1,0 +1,49 @@
+
+# File generato per ignorare i file ausiliari di LaTeX
+
+# Output e file di log
+*.aux
+*.log
+*.toc
+*.out
+*.lot
+*.lof
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+*.blg
+*.bbl
+*.brf
+
+# Presentazioni/visualizzazione
+*.nav
+*.snm
+*.vrb
+
+# Formati intermedi
+*.dvi
+*.ps
+*.xdv
+
+# File generati (es. compilazione PDF) - opzionale
+*.pdf
+
+# Editor/backup/temp
+*~
+*.bak
+*.swp
+.#*
+
+# macOS
+.DS_Store
+
+# latexmk e altri
+.latexmkrc
+
+# Directory di output
+_minted-*
+build/
+out/
+
+# SyncTeX temporary
+*.synctex
