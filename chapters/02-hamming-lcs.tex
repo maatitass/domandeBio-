@@ -1,0 +1,255 @@
+\chapter{Come si modifica il metodo di cui sopra per calcolare la 
+distanza di Hamming (se v e w hanno stessa lunghezza) e la 
+longest common subsequence tra v e w}
+
+Per adattare il metodo di calcolo della distanza di edit per ottenere la distanza 
+di Hamming o Longest common subsequence (LCS), 
+è necessario modificare le \textbf{operazioni consentite}, 
+e di conseguenza la definizione della \textbf{funzione di costo} $\delta$ 
+e l'algoritmo di \textbf{programmazione dinamica}.
+
+\paragraph{Distanza di Hamming}
+
+La \textbf{distanza di Hamming} si applica quando le due stringhe hanno la stessa 
+lunghezza e si calcola confrontando i caratteri nelle stesse posizioni. 
+Ogni posizione diversa contribuisce con costo $1$, mentre ogni posizione uguale 
+contribuisce con costo $0$.
+
+\begin{equation}
+    d_H(v, w) = \text{numero di posizioni in cui } v \text{ e } w \text{ differiscono}
+\end{equation}
+
+\textbf{Esempio}
+
+\begin{align*}
+    S_1 &= ACCGT \\
+    S_2 &= AGCGT
+\end{align*}
+
+Le due stringhe differiscono solo nella seconda posizione, dove $C \neq G$. Quindi:
+\begin{equation}
+    d_H(S_1,S_2)=1
+\end{equation}
+
+Se invece:
+\begin{align*}
+    S_1 &= ACCGT \\
+    S_2 &= ACCGT
+\end{align*}
+
+non ci sono posizioni diverse, quindi:
+\begin{equation}
+    d_H(S_1,S_2)=0
+\end{equation}
+
+Per calcolare $d_H(v, w)$ utilizzando una griglia di edit definita per la distanza 
+di edit, ma bisogna apportare alcune modifiche:
+\begin{itemize}
+    \item La griglia di edit sarà una matrice di dimensione $n \times m$ con $n = m$ (poiché le stringhe devono avere la stessa lunghezza).
+    \item Gli archi consentiti saranno solo quelli diagonali, poiché non sono permesse operazioni di inserzione o delezione. 
+    \item La funzione di costo $\delta$ sarà definita come:
+    \begin{itemize}
+        \item \textbf{match}: $\delta(v_i, w_j) = 0$ se $v_i = w_j$ 
+        \item \textbf{mismatch}: $\delta(v_i, w_j) = 1$ se $v_i \neq w_j$
+        \item \textbf{indel}: $\delta(v_i, w_j) = n (\infty)$ se $v_i$ o $w_j$ = \texttt{-} 
+    \end{itemize}
+\end{itemize}
+
+Il \textbf{costo $n$} assegnato agli indel serve a penalizzare fortemente inserzioni e
+delezioni. Infatti, poiché le due stringhe hanno la stessa lunghezza, il costo
+massimo della distanza di Hamming è $n$, cioè il caso in cui tutti i caratteri
+siano diversi. Se invece un allineamento usa un gap, per mantenere le due
+sequenze della stessa lunghezza dovrà introdurre almeno due indel, con costo
+totale almeno $2n$. Poiché $2n > n$, un allineamento con gap non potrà mai essere
+ottimo. In questo modo l'algoritmo è forzato ad allineare solo caratteri in
+\textbf{posizione corrispondente} (movimenti diagonali), e il costo finale coincide con il numero di mismatch.
+
+Per calcolare il costo minimo si può usare ancora la programmazione dinamica,
+come nel caso della distanza di edit. Indichiamo con $S(i,j)$ il costo minimo
+per allineare il prefisso $v[1..i]$ con il prefisso $w[1..j]$.
+
+I \textbf{casi base} diventano:
+\begin{itemize}
+    \item $S(0,0)=0$
+    \item $S(i,0)=i \cdot n$ per $0 \leq i \leq n$
+    \item $S(0,j)=j \cdot n$ per $0 \leq j \leq n$
+\end{itemize}
+
+Infatti, per allineare un prefisso non vuoto con una stringa vuota, è necessario
+inserire solo gap, e ogni gap ha costo $n$.
+
+Successivamente, si riempie il resto della griglia con la seguente
+\textbf{equazione di ricorrenza}:
+\begin{equation}
+    S(i,j)=\min
+    \begin{cases}
+        S(i-1,j)+n & \text{(Delezione)} \\
+        S(i,j-1)+n & \text{(Inserzione)} \\
+        S(i-1,j-1)+\delta(v_i,w_j) & \text{(Match/Mismatch)}
+    \end{cases}
+\end{equation}
+
+dove:
+
+\begin{equation}
+    \delta(v_i,w_j)=
+    \begin{cases}
+        0 & \text{se } v_i=w_j \\
+        1 & \text{se } v_i \neq w_j
+    \end{cases}
+\end{equation}
+
+Il valore nel nodo finale:
+\begin{equation}
+    S(n,n)
+\end{equation}
+
+coincide quindi con la distanza di Hamming:
+
+\begin{equation}
+     S(n,n)=d_H(v,w)
+\end{equation}
+
+La \textbf{matrice di allineamento} che si ottiene non contiene gap, ma solo colonne del tipo:
+
+\[
+\begin{pmatrix}
+v_i \\
+w_i
+\end{pmatrix}
+\]
+
+per ogni posizione $i$. Ogni colonna ha costo $0$ se i due simboli sono uguali e
+costo $1$ se sono diversi. La somma dei costi delle colonne è quindi esattamente
+il numero di mismatch tra $v$ e $w$.
+In questo modo, la distanza di Hamming può essere vista come un caso particolare
+della distanza di edit in cui inserzioni e delezioni sono rese non convenienti
+tramite un costo molto alto.
+
+\paragraph{Longest Common Subsequence (LCS)}
+Date due sequenze $v = v_1 v_2 \ldots v_n$ e $w = w_1 w_2 \ldots w_m$ 
+la \textbf{longest common subsequence (LCS)} di $v$ e $w$ è la sequenza di posizioni
+$1 \leq i_1 < i_2 < \ldots < i_k \leq n$ e $1 \leq j_1 < j_2 < \ldots < j_k \leq m$
+tale che la $i$-esima posizione di $v$ e la $j$-esima posizione di $w$ contengono lo stesso simbolo, 
+ovvero $v_{i_t} = w_{j_t}$ per ogni $t = 1, 2, \ldots, k$. 
+La lunghezza della longest common subsequence è indicata con $LCS(v,w)$.
+
+\textbf{Esempio}
+
+Consideriamo:
+\begin{align*}
+    v &= ATCTGATC \\
+    w &= TGCATAC
+\end{align*}
+
+Un possibile allineamento tra $v$ e $w$ è:
+\[
+A =
+\begin{pmatrix}
+A & \textcolor{red}{T} & \text{-} & \textcolor{red}{C} & \text{-} & \textcolor{red}{T} & G & \textcolor{red}{A} & T & \textcolor{red}{C} \\
+\text{-} & \textcolor{red}{T} & G & \textcolor{red}{C} & A & \textcolor{red}{T} & \text{-} & \textcolor{red}{A} & \text{-} & \textcolor{red}{C}
+\end{pmatrix}
+\]
+
+Le colonne evidenziate in rosso sono i \textbf{match}, cioè le colonne in cui i due
+simboli allineati sono uguali. Il cammino corrispondente nella griglia è:
+\[
+\begin{aligned}
+(0,0) &\rightarrow (1,0) \rightarrow \textcolor{red}{(2,1)}
+\rightarrow (2,2) \rightarrow \textcolor{red}{(3,3)} \rightarrow (3,4) \\
+&\rightarrow \textcolor{red}{(4,5)} \rightarrow (5,5)
+\rightarrow \textcolor{red}{(6,6)} \rightarrow (7,6)
+\rightarrow \textcolor{red}{(8,7)}
+\end{aligned}
+\]
+
+Quindi le posizioni scelte in $v$ sono:
+\[
+    2 < 3 < 4 < 6 < 8
+\]
+
+e le posizioni corrispondenti in $w$ sono:
+\[
+    1 < 3 < 5 < 6 < 7
+\]
+
+La \textbf{sottosequenza comune} letta nelle colonne di match è:
+\[
+    TCTAC
+\]
+
+In questo esempio la lunghezza della longest common subsequence è quindi:
+\[
+    LCS(v,w)=5
+\]
+
+Anche per LCS è possibile utilizzare una \textbf{griglia di edit} di dimensione $(n+1) \times (m+1)$, con $n = |v|$ e $m = |w|$, con archi pesati e applicare la \textbf{programmazione dinamica}.
+Tuttavia, come per la distanza di Hamming, è necessario modificare operazioni
+consentite, funzione di costo $\delta$ e algoritmo di programmazione dinamica. 
+In particolare dovendo trovare le posizioni dove $v$ e $w$ hanno simboli uguali,
+andrà considerato il \textbf{movimento diagonale}, solo in caso di match.
+Inoltre al contrario di edit e hamming serve trovare la più lunga sottosequenza comune,
+quindi servirà modificare i valori di costo per riflettere questa differenza.
+andando ad escludere i mismatch dall'allineamento.
+
+Quindi la \textbf{funzione di costo} $\delta$ sarà definita come:
+\begin{itemize}
+    \item \textbf{match}: $\delta(v_i, w_j) = 1$ se $v_i = w_j$ (l'arco diagonale da $(i-1,j-1)$ a $(i,j)$)
+    \item \textbf{Indel} (inserzione o delezione): $\delta(v_i,\text{-})=0$ per una delezione (l'arco verticale da $(i-1,j)$ a $(i,j)$) e $\delta(\text{-},w_j)=0$ per una inserzione (l'arco orizzontale da $(i,j-1)$ a $(i,j)$).
+\end{itemize}
+
+Per calcolare la LCS fra due sequenze si utilizza la programmazione dinamica ma cambia l'obbiettivo: invece di minimizzare il costo, si massimizza il numero di match.
+non cerca più di minimizzare il costo totale, ma di massimizzare il numero di match (lunghezza della sottosequenza comune).+
+
+Indichiamo con $S(i,j)$ la lunghezza della LCS tra il prefisso $v[1..i]$ e il prefisso $w[1..j]$.
+
+I \textbf{casi base} diventano:
+\begin{itemize}
+    \item $S(0,0)=0$
+    \item $S(i,0)=0$ per $0 \leq i \leq n$
+    \item $S(0,j)=0$ per $0 \leq j \leq m$
+\end{itemize}
+
+Infatti, se una delle due sequenze è vuota, non esiste alcuna sottosequenza comune non vuota, quindi la lunghezza della LCS è $0$.
+
+Si riempie il resto della griglia con la seguente \textbf{equazione di ricorrenza}:
+\begin{equation}
+    S(i,j)=\max
+    \begin{cases}
+        S(i-1,j) & \text{(salto } v_i\text{)} \\
+        S(i,j-1) & \text{(salto } w_j\text{)} \\
+        S(i-1,j-1)+1 & \text{se } v_i=w_j
+    \end{cases}
+\end{equation}
+
+Il valore nel nodo finale:
+\begin{equation}
+    S(n,n)
+\end{equation}
+
+coincide quindi con la lunghezza della longest common subsequence:
+
+\begin{equation}
+     S(n,m)=LCS(v,w)
+\end{equation}
+
+Effettuando il \textbf{backtracking} nella griglia, partendo dal nodo finale
+$(n,m)$ e risalendo fino al nodo sorgente $(0,0)$, è possibile ricostruire
+una matrice di allineamento $A$.
+
+Per ottenere la \textbf{longest common subsequence}, si considerano solo le
+colonne di $A$ che corrispondono a un match, cioè colonne del tipo:
+
+\[
+\begin{pmatrix}
+v_i \\
+w_j
+\end{pmatrix}
+\]
+
+con $v_i = w_j$.
+
+I simboli letti in queste colonne, nell'ordine dell'allineamento, formano la
+longest common subsequence.
+
+\newpage
