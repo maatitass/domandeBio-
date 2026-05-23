@@ -2,7 +2,7 @@
 
 La \textbf{distanza di edit} è definita come il numero minimo di operazioni elementari (delezione, inserzione, sostituzione) necessarie per trasformare una stringa nell'altra.
 \begin{equation}
-    d_E(v, w) = \text{MIN numero di operazioni per trasformare } v \text{ in } w
+    d_E(v, w) = \text{numero minimo di operazioni per trasformare } v \text{ in } w
 \end{equation}
 
 \textbf{Esempio di trasformazione}
@@ -23,7 +23,7 @@ $(n+1) \times (m+1)$, i cui vertici sono coppie $(i, j)$ con $0 \leq i \leq n$ e
 Ogni vertice, inoltre, rappresenta l'allineamento tra prefissi $v[1..i]$ e $w[1..j]$. 
 Il vertice $(0,0)$ è il \textbf{nodo sorgente} mentre $(n,m)$ è lo \textbf{stato finale} (sink).
 Gli archi della griglia sono i movimenti permessi sulla griglia e sono etichettati mediante \textbf{funzione di costo}.
-Ogni cammino da $(0,0)$ a $(n,m)$ rapprensenta un possibile allineamento fra $v$ e $w$, mentre il costo complessivo rappresenta il costo dell'allineamento.
+Ogni cammino da $(0,0)$ a $(n,m)$ rappresenta un possibile allineamento fra $v$ e $w$, mentre il costo complessivo rappresenta il costo dell'allineamento.
 Ogni cammino valido nella griglia da sorgente a sink corrisponde esattamente a un allineamento tra $v$ e $w$. Il costo del cammino (somma dei pesi degli archi) è il numero di operazioni di editing.
 
 I movimenti permessi e i loro pesi (costi) sono:
@@ -47,11 +47,11 @@ Questi costi diventano i pesi degli archi nella griglia di edit:
     \item l'arco diagonale da $(i-1,j-1)$ a $(i,j)$ ha peso $\delta(v_i,w_j)$, quindi $0$ se $v_i = w_j$ e $1$ se $v_i \neq w_j$.
 \end{itemize}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{images/edit_graph.png}
-    \caption{Didascalia dell'immagine}
-    \label{fig:edit grid}
+    \caption{Griglia di edit con archi pesati.}
+    \label{fig:edit-grid}
 \end{figure}
 
 Per calcolare il costo minimo per raggiungere un nodo $(i,j)$ si applica la programmazione dinamica. Prima si definiscono i \textbf{casi base} (inizializzazione della prima riga e prima colonna):
@@ -75,11 +75,11 @@ Il valore calcolato nel nodo \textit{sink}, ovvero $S(n, m)$, rappresenta la \te
 \vspace{0.5cm}
 \textbf{Ricostruzione della matrice di allineamento}
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{images/backtracking.png}
-    \caption{Didascalia dell'immagine}
-    \label{fig:edit_grid complete}
+    \caption{Backtracking nella griglia per ricostruire un allineamento ottimo.}
+    \label{fig:edit-grid-complete}
 \end{figure}
 Per ricostruire una matrice di allineamento $A$ (di dimensione $2 \times k$, con $k \geq \max(n,m)$) che rifletta tale distanza, si utilizza la procedura di \textbf{backtracking} (percorso a ritroso) all'interno della griglia:
 

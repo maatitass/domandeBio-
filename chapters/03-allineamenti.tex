@@ -10,22 +10,22 @@ e con $\delta : (\Sigma \cup \{-\}) \times (\Sigma \cup \{-\}) \rightarrow \math
 \end{itemize}
 
 Un allineamento tra $V$ e $W$ è una matrice $A$ di dimensione $2 \times k$ (con $k \geq \max(n,m)$) 
-ottenuta inserendo eventualmente i gap nelle sequenza,
+ottenuta inserendo eventualmente i gap nelle sequenze,
 in modo tale che, eliminando i gap dalla prima riga, si ottiene $V$,
 ed eliminando i gap dalla seconda riga, si ottiene $W$.
-Ogni colonna di $A$ rappresenta un un match, mismatch, inserzione o delezione.
-Il punteggio di allineamento è dato dalla somme dei punteggi delle singole colonne
+Ogni colonna di $A$ rappresenta un match, mismatch, inserzione o delezione.
+Il punteggio di allineamento è dato dalla somma dei punteggi delle singole colonne:
 \begin{equation}
     \text{C}(A) = \sum_{i=1}^{k} \delta(A_{1,i}, A_{2,i})
 \end{equation}
 
 Per calcolare un allineamento ottimo si usa una griglia di edit di dimensione
-$(n+1) \times (m+1)$, in cui $C(i,j)$ rappresenta lo score ottimo per allineare il prefisso $v[1..i]$ con il prefisso $w[1..j]$.
+$(n+1) \times (m+1)$, in cui $S(i,j)$ rappresenta lo score ottimo per allineare il prefisso $v[1..i]$ con il prefisso $w[1..j]$.
 
 \paragraph{Allineamento Globale}
 
 L'\textbf{allineamento globale} di due sequenze $V$ e $W$ è un allineamento che considera entrambe le sequenze nella loro interezza.
-Quindi l'obbiettivo è trovare la matrice di allineamento $A$ di score ottimo
+Quindi l'obiettivo è trovare la matrice di allineamento $A$ di score ottimo
 tra tutta la sequenza $V$ e tutta la sequenza $W$.
 
 Nel calcolo tramite programmazione dinamica, $S(i,j)$ rappresenta lo score
@@ -40,46 +40,45 @@ I \textbf{casi base} sono:
 
 Dove $d$ è il costo dell'inserimento di un gap. Infatti, per allineare un prefisso non vuoto con una stringa vuota, è necessario inserire solo gap, e ogni gap ha costo $d$.
 
-per $i > 0$ e $j > 0$ la ricorrenza è:
+Per $i > 0$ e $j > 0$ la ricorrenza è:
 \begin{equation}
-    S(i,j) = \min (\max)
+    S(i,j) = \operatorname{opt}
     \begin{cases}
         S(i-1,j-1) + \delta(v_i,w_j) & \text{(match/mismatch)} \\
         S(i-1,j) + \delta(v_i,-) & \text{(delezione)} \\
         S(i,j-1) + \delta(-,w_j) & \text{(inserzione)}
     \end{cases}
 \end{equation}
+dove $\operatorname{opt}$ indica l'operatore ottimo: $\min$ se si lavora con costi da minimizzare, $\max$ se si lavora con score da massimizzare.
 
-Poichè si considerano entrambe le sequenze nella loro interezza, il punteggio ottimo si trova nel nodo finale $S(n,m)$.
+Poiché si considerano entrambe le sequenze nella loro interezza, il punteggio ottimo si trova nel nodo finale $S(n,m)$.
 
 La ricostruzione dell'allineamento avviene tramite backtracking, partendo da $S(n,m)$ e risalendo fino a $S(0,0)$, seguendo i movimenti che hanno portato al punteggio ottimo.
 Si ottiene così la matrice di allineamento $A$.
 
 \paragraph{Allineamento Locale}
 
-Date due stringe:
+Date due stringhe:
 \[
-V = v_1 v_2 \ldots v_{i-1} v_1 v_{i+1} \ldots v_n \quad \text{e} \quad W = w_1 w_2 \ldots w_{j-1} w_j w_{j+1} \ldots w_m
+V = v_1 v_2 \ldots v_n \quad \text{e} \quad W = w_1 w_2 \ldots w_m
 \]
 un \textbf{allineamento locale} consiste nel determinare il miglior allineamento globale
 tra una sottostringa di $V$ e una sottostringa di $W$.
 
 Quindi, a differenza dell'allineamento globale, non si vuole necessariamente
 allineare tutta la sequenza $V$ con tutta la sequenza $W$, ma si vogliono
-individua le regioni più simili contenute nelle sequenze.
+individuare le regioni più simili contenute nelle sequenze.
 
-Formalmente, l'obbiettivo è quindi di trovare due sotto stringe $V' = v_i v_{i+1} \ldots v_{i+k}$ e $W' = w_j w_{j+1} \ldots w_{j+k}$ (con $k \geq 0$) tali che lo score di 
-allineamento globale fra le due sottostringhe sia massimi fra tutte le possibile coppie di sottostringhe in $V$ e $W$.
-\\
-\\
+Formalmente, l'obiettivo è quindi di trovare due sottostringhe $V' = v_i v_{i+1} \ldots v_{i+k}$ e $W' = w_j w_{j+1} \ldots w_{j+k}$ (con $k \geq 0$) tali che lo score di
+allineamento globale fra le due sottostringhe sia massimo fra tutte le possibili coppie di sottostringhe in $V$ e $W$.
+
 Anche per l'allineamento locale si utilizza la griglia di edit $S$ di dimensione: $(n+1) \times (m+1)$,
-dove però $S(i,j)$ rappresenterà il miglior score di allinaemento globale
+dove però $S(i,j)$ rappresenterà il miglior score di allineamento globale
 tra due sottostringhe che terminano rispettivamente in $v_i$ e $w_j$.
-\\
-\\
+
 In altre parole, $S(i,j)$ non rappresenta lo score tra prefissi di $V$ e $W$,
 ma il miglior score tra tutte le coppie di sottostringhe che terminano in $v_i$ e $w_j$.
-Lo scor dell'allineamento locale tra $V$ e $W$ sarà quindi il massimo valore
+Lo score dell'allineamento locale tra $V$ e $W$ sarà quindi il massimo valore
 presente nella matrice $S$.
 
 I \textbf{casi base} sono:
@@ -91,12 +90,12 @@ I \textbf{casi base} sono:
 
 A differenza dell'allineamento globale, qui non si inizializza la prima riga
 e la prima colonna con il costo dei gap, in quanto le parti iniziali delle sequenze
-che non appartengono alla sottostringa ottima posso essere ignorate. L'allineamento, infatti,
-può inzizare in qualunque punto della matrice.
+che non appartengono alla sottostringa ottima possono essere ignorate. L'allineamento, infatti,
+può iniziare in qualunque punto della matrice.
 
 Per $i > 0$ e $j > 0$ la ricorrenza è:
 \begin{equation}
-    S(i,j) = \max (\min) \begin{cases}
+    S(i,j) = \operatorname{opt} \begin{cases}
         0 \\
         S(i-1,j-1) + \delta(v_i,w_j)\\
         S(i-1,j) + \delta(v_i,-) \\
@@ -105,36 +104,36 @@ Per $i > 0$ e $j > 0$ la ricorrenza è:
 \end{equation}
 
 Il primo caso, con punteggio $0$, è la differenza principale rispetto
-all'allineamento globale. Infatti, se tutte le opzioni di allineamento hanno un punteggio negativo, è preferibile non allineare nulla
-quindi interrompere l'allineamento corrente e iniziare un novo allineamento a partire dalla cella successiva. 
-\\
+all'allineamento globale. Nel caso classico con score da massimizzare, se tutte le opzioni di allineamento hanno un punteggio negativo, è preferibile non allineare nulla,
+quindi interrompere l'allineamento corrente e iniziare un nuovo allineamento a partire dalla cella successiva.
+
 Una volta riempita la matrice $S$, lo score ottimo dell'allineamento locale non si trova necessariamente in $S(n,m)$ ma è:
 \[
     \max_{0 \leq i \leq n, 0 \leq j \leq m} S(i,j)
 \]
 cioè il massimo valore presente nella matrice.
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{images/local_allignment.png}
-    \caption{Didascalia dell'immagine}
-    \label{fig:local_allignment}
+    \caption{Allineamento locale: scelta della regione con score ottimo.}
+    \label{fig:local-alignment}
 \end{figure}
 
 La ricostruzione dell'allineamento avviene tramite backtracking, partendo dalla cella che contiene il punteggio massimo.
 Il backtracking procede a ritroso seguendo i movimenti che hanno portato al punteggio ottimo e si ferma quando raggiunge una cella con punteggio $0$, che rappresenta
 l'inizio dell'allineamento locale ottimo.
 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{images/back_locale.png}
-    \caption{Didascalia dell'immagine}
-    \label{fig:back_locale}
+    \caption{Backtracking nell'allineamento locale fino a una cella con punteggio $0$.}
+    \label{fig:back-locale}
 \end{figure}
 
 \paragraph{Allineamento Semi-globale}
 
 L'\textbf{allineamento semi-globale} di due sequenze
-$V=v_1v_2\dots v_m$ e $W=w_1w_2\dots w_n$ è una famiglia di problemi di
+$V=v_1v_2\dots v_n$ e $W=w_1w_2\dots w_m$ è una famiglia di problemi di
 allineamento in cui non si richiede necessariamente di allineare entrambe le
 sequenze per intero, come nell'allineamento globale, ma non si cercano nemmeno
 due sottostringhe completamente arbitrarie, come nell'allineamento locale.
@@ -153,11 +152,11 @@ ma sono vincolati dal tipo di problema, in particolare:
     \item se si cerca un prefisso di $V$, allora la porzione deve iniziare da
     $v_1$, quindi è del tipo $V[1..b]$;
     \item se si cerca un suffisso di $W$, allora la porzione deve terminare in
-    $w_n$, quindi è del tipo $W[c..n]$;
+    $w_m$, quindi è del tipo $W[c..m]$;
     \item se si cerca una sottostringa di $V$, allora la porzione può iniziare
     e finire in posizioni interne, quindi è del tipo $V[a..b]$;
     \item se si considera tutta $W$, allora la porzione è fissata ed è
-    $W[1..n]$.
+    $W[1..m]$.
 \end{itemize}
 
 La stessa cosa vale per la sequenza $W$.
@@ -165,12 +164,12 @@ La stessa cosa vale per la sequenza $W$.
 Dal punto di vista del calcolo, anche l'allineamento semi-globale usa una
 matrice dinamica $S$ di dimensione:
 \[
-    (m+1) \times (n+1)
+    (n+1) \times (m+1)
 \]
 
 La ricorrenza interna è in genere la stessa dell'allineamento globale:
 \[
-    S(i,j)=\max
+    S(i,j)=\operatorname{opt}
     \begin{cases}
         S(i-1,j-1)+\delta(v_i,w_j)\\
         S(i-1,j)+\delta(v_i,-)\\
@@ -179,7 +178,7 @@ La ricorrenza interna è in genere la stessa dell'allineamento globale:
 \]
 
 La differenza rispetto al globale sta nel fatto che non sempre l'ottimo viene
-cercato nella cella finale $S(m,n)$. A seconda del tipo di porzione considerata,
+cercato nella cella finale $S(n,m)$. A seconda del tipo di porzione considerata,
 lo score ottimo può essere cercato nell'ultima riga, nell'ultima colonna, in
 tutta la matrice o in un'altra regione specifica.
 

@@ -45,13 +45,13 @@ non ci sono posizioni diverse, quindi:
 Per calcolare $d_H(v, w)$ utilizzando una griglia di edit definita per la distanza 
 di edit, ma bisogna apportare alcune modifiche:
 \begin{itemize}
-    \item La griglia di edit sarà una matrice di dimensione $n \times m$ con $n = m$ (poiché le stringhe devono avere la stessa lunghezza).
+    \item La griglia di edit sarà una matrice di dimensione $(n+1) \times (n+1)$, poiché le stringhe devono avere la stessa lunghezza.
     \item Gli archi consentiti saranno solo quelli diagonali, poiché non sono permesse operazioni di inserzione o delezione. 
     \item La funzione di costo $\delta$ sarà definita come:
     \begin{itemize}
         \item \textbf{match}: $\delta(v_i, w_j) = 0$ se $v_i = w_j$ 
         \item \textbf{mismatch}: $\delta(v_i, w_j) = 1$ se $v_i \neq w_j$
-        \item \textbf{indel}: $\delta(v_i, w_j) = n (\infty)$ se $v_i$ o $w_j$ = \texttt{-} 
+        \item \textbf{indel}: $\delta(v_i, \text{-})=\delta(\text{-}, w_j)=n$ se uno dei due simboli è un gap.
     \end{itemize}
 \end{itemize}
 
@@ -183,14 +183,14 @@ In questo esempio la lunghezza della longest common subsequence è quindi:
     LCS(v,w)=5
 \]
 
-Anche per LCS è possibile utilizzare una \textbf{griglia di edit} di dimensione $(n+1) \times (m+1)$, con $n = |v|$ e $m = |w|$, con archi pesati e applicare la \textbf{programmazione dinamica}.
-Tuttavia, come per la distanza di Hamming, è necessario modificare operazioni
-consentite, funzione di costo $\delta$ e algoritmo di programmazione dinamica. 
-In particolare dovendo trovare le posizioni dove $v$ e $w$ hanno simboli uguali,
+Anche per LCS è possibile utilizzare una \textbf{griglia di edit} di dimensione $(n+1) \times (m+1)$, con $n = |v|$ e $m = |w|$, con archi pesati e poi applicare la \textbf{programmazione dinamica}.
+Tuttavia, come per la distanza di Hamming, è necessario modificare le operazioni
+consentite, la funzione di costo $\delta$ e l'algoritmo di programmazione dinamica.
+In particolare, dovendo trovare le posizioni dove $v$ e $w$ hanno simboli uguali,
 andrà considerato il \textbf{movimento diagonale}, solo in caso di match.
-Inoltre al contrario di edit e hamming serve trovare la più lunga sottosequenza comune,
-quindi servirà modificare i valori di costo per riflettere questa differenza.
-andando ad escludere i mismatch dall'allineamento.
+Inoltre, al contrario della distanza di edit e della distanza di Hamming, serve trovare la più lunga sottosequenza comune,
+quindi bisogna modificare i valori di costo per riflettere questa differenza,
+escludendo i mismatch dall'allineamento.
 
 Quindi la \textbf{funzione di costo} $\delta$ sarà definita come:
 \begin{itemize}
@@ -198,8 +198,7 @@ Quindi la \textbf{funzione di costo} $\delta$ sarà definita come:
     \item \textbf{Indel} (inserzione o delezione): $\delta(v_i,\text{-})=0$ per una delezione (l'arco verticale da $(i-1,j)$ a $(i,j)$) e $\delta(\text{-},w_j)=0$ per una inserzione (l'arco orizzontale da $(i,j-1)$ a $(i,j)$).
 \end{itemize}
 
-Per calcolare la LCS fra due sequenze si utilizza la programmazione dinamica ma cambia l'obbiettivo: invece di minimizzare il costo, si massimizza il numero di match.
-non cerca più di minimizzare il costo totale, ma di massimizzare il numero di match (lunghezza della sottosequenza comune).+
+Per calcolare la LCS fra due sequenze si utilizza la programmazione dinamica, ma cambia l'obiettivo: invece di minimizzare il costo totale, si massimizza il numero di match, cioè la lunghezza della sottosequenza comune.
 
 Indichiamo con $S(i,j)$ la lunghezza della LCS tra il prefisso $v[1..i]$ e il prefisso $w[1..j]$.
 
@@ -224,7 +223,7 @@ Si riempie il resto della griglia con la seguente \textbf{equazione di ricorrenz
 
 Il valore nel nodo finale:
 \begin{equation}
-    S(n,n)
+    S(n,m)
 \end{equation}
 
 coincide quindi con la lunghezza della longest common subsequence:

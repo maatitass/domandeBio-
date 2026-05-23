@@ -1,0 +1,30 @@
+\chapter{Differenza tra genotipo e aplotipo}
+Negli individui diploidi, come l'uomo, la maggior parte dei cromosomi è presente in due copie omologhe: una ereditata dalla madre e una dal padre.
+Un \textbf{allele} è una variante di una sequenza genetica in una specifica posizione del DNA.
+Un \textbf{aplotipo} è una sequenza ordinata di alleli lungo una singola copia di una regione cromosomica. In ambito computazionale, un aplotipo può essere rappresentato come un vettore binario, dove spesso $0$ indica l'allele di riferimento e $1$ indica l'allele alternativo. Ad esempio:
+
+\[
+h_1 = \langle 1, 0, 1, 0 \rangle
+\]
+
+Il \textbf{genotipo}, invece, rappresenta l'informazione combinata dei due aplotipi dell'individuo. Per ogni posizione, il genotipo considera la coppia di alleli presenti sui due cromosomi omologhi.
+La differenza fondamentale è che l'aplotipo mantiene l'\textbf{informazione di fase}, cioè indica quali alleli si trovano sulla stessa copia cromosomica. Il genotipo, invece, indica quali alleli sono presenti in ogni posizione, ma non sempre specifica a quale dei due aplotipi appartenga ciascun allele.
+Per esempio, dati due aplotipi:
+
+\[
+h_1 = \langle 1, 0, 1, 0 \rangle
+\]
+
+\[
+h_2 = \langle 0, 1, 1, 0 \rangle
+\]
+
+il genotipo risultante può essere rappresentato come:
+
+\[
+g = \langle *, *, 1, 0 \rangle
+\]
+
+dove $*$ indica una posizione eterozigote, cioè una posizione in cui i due aplotipi hanno valori diversi, come $(1,0)$ oppure $(0,1)$. Invece, $0$ indica una posizione omozigote $(0,0)$ e $1$ indica una posizione omozigote $(1,1)$.
+
+
