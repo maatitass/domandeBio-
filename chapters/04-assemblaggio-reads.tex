@@ -101,7 +101,7 @@ Quindi l'assemblaggio non consiste nel concatenare interamente tutte le read,
 ma nel partire dal primo read e aggiungere, per ogni arco attraversato, 
 solo l'estensione del read successivo, evitando di duplicare le regioni sovrapposte.
 
-In una versione ridotta del grafo, si possono eliminare gli archi transitivi, ottenendo:
+È possibile semplificare il grafo, andando eliminare gli archi transitivi, ottenendo uno \textbf{String Graph}:
 \[
     A = \{(r_i, r_j) \mid r_i, r_j \in V, |ov(r_i, r_j)| \geq \tau, \ (r_i,r_j) \text{ non transitivo}\}
 \]

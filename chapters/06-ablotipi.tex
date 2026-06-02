@@ -1,0 +1,211 @@
+\chapter{Assemblaggio aplotipi da frammenti. Definizione del problema MEC (Minimum Error
+Correction) e formulazione con il grafo bipartito}
+
+L'assemblaggio di aplotipi è un problema computazionale che consiste nel ricostruire i due aplotipi di un individuo diploide a partire da read ottenute dal sequenziamento.
+Nel caso diploide, ogni individuo possiede due copie di ciascun cromosoma, una di origine materna e una di origine paterna. Le read prodotte dal sequenziamento provengono da entrambi gli aplotipi, ma non si conosce a priori da quale dei due provenga ciascuna read.
+\begin{itemize}
+    \item \textbf{Input}: una collezione di read/frammenti ottenuti dal sequenziamento e allineati al reference.
+    \item \textbf{Output}: una bipartizione delle read in due insiemi, ciascuno corrispondente a uno dei due aplotipi.
+
+\end{itemize}
+
+
+Dal punto di vista computazionale, l'input viene rappresentato tramite una matrice dei frammenti \(F\). Le righe ($n$)rappresentano i frammenti \(f_1,\dots,f_n\), mentre le colonne($m$) rappresentano le posizioni SNP considerate.
+\[
+F \in \{1,0,-\}^{n \times m}
+\]
+Un elemento \(F(i,j)=0\) indica che il frammento \(f_i\) osserva allele 0 nella posizione SNP \(j\), mentre \(F(i,j)=1\) indica che osserva allele 1. Il simbolo \(F(i,j)=-\) indica invece che il frammento non copre quella posizione.
+Le posizioni omozigoti possono essere ignorate, perché non aiutano a distinguere i due aplotipi. Sono invece informative le posizioni eterozigoti, dove i due aplotipi hanno valori diversi.
+In assenza di errori, l'obiettivo è trovare una bipartizione dei frammenti in due insiemi \(R\) e \(S\), tali che:
+\[
+R \cup S = \{f_1,\dots,f_n\}, \qquad R \cap S = \emptyset.
+\]
+
+I frammenti nello stesso insieme devono essere compatibili, 
+cioè non devono presentare valori opposti in una stessa colonna SNP coperta da entrambi.
+
+Due frammenti \(f_i\) e \(f_k\) sono compatibili se, per ogni colonna \(j\),
+\[
+F(i,j)=- 
+\quad \text{oppure} \quad 
+F(k,j)=- 
+\quad \text{oppure} \quad 
+F(i,j)=F(k,j).
+\]
+Al contrario, due frammenti sono in conflitto se esiste almeno una colonna \(j\) tale che entrambi osservano quella 
+posizione e riportano valori opposti:
+\[
+\exists j :
+F(i,j)\neq -, \qquad
+F(k,j)\neq -, \qquad
+F(i,j)\neq F(k,j).
+\]
+A partire da questa formulazione è possibile descrivere il problema tramite un grafo. Si costruisce il grafo dei conflitti:
+\[
+G_F=(V,E),
+\]
+dove i vertici sono i frammenti della matrice:
+\[
+V=\{f_1,\dots,f_n\}.
+\]
+E si inserisce un arco tra due frammenti \(f_i\) e \(f_k\) se e solo se essi sono in conflitto. 
+\[
+(f_i,f_k)\in E
+\iff
+\exists j :
+F(i,j)\neq -, \quad
+F(k,j)\neq -, \quad
+F(i,j)\neq F(k,j).
+\] 
+Quindi un arco del grafo collega due frammenti che non possono stare nello stesso aplotipo.
+
+Il punto fondamentale è che, in assenza di errori, esiste una bipartizione dei frammenti in due insiemi senza conflitti se e solo se il grafo dei conflitti \(G_F\) è bipartito:
+
+\[
+\exists (R,S) \text{ bipartizione conflict-free di } F
+\iff
+G_F \text{ è bipartito}.
+\]
+
+Infatti, se esiste una bipartizione corretta, allora non possono esserci archi tra frammenti appartenenti allo stesso insieme, perché un arco rappresenta un conflitto. 
+Dunque tutti gli archi collegano frammenti appartenenti a insiemi diversi.
+Viceversa, se il grafo dei conflitti è bipartito, allora i suoi vertici possono essere divisi in due insiemi i
+ndipendenti \(R\) e \(S\). Poiché non ci sono archi interni a \(R\) né a \(S\), 
+i frammenti nello stesso insieme non sono in conflitto e possono quindi essere assegnati allo stesso aplotipo.
+
+La costruzione del grafo dei conflitti è polinomiale. Infatti, il grafo ha tanti vertici quante sono le righe della 
+matrice \(F\), quindi \(n\) vertici. Gli archi collegano coppie di frammenti in conflitto; nel caso peggiore 
+si confrontano tutte le coppie di frammenti, cioè \(O(n^2)\) coppie, controllando le \(m\) colonne SNP. 
+Quindi la costruzione del grafo richiede tempo \(O(n^2m)\). Anche verificare se il grafo è bipartito 
+si può fare in tempo polinomiale, quindi in assenza di errori la bipartizione dei frammenti è in \(P\).
+
+Adesso si può formulare la definizone completa del problema dell'assemblaggio di aplotipi:
+\begin{itemize}
+    \item \textbf{Input}: matrice dei frammenti \(F\) di $m$ colonne (SNP) ed $n$ righe $f_1,f_2 \dots f_n$.
+    \item \textbf{Output}: trovare una bipartizione dei frammenti delle righe di \(F\) in due insiemi \(R\) e \(S\) tale che $\forall f_i, fj \in R (S)$ non siano in conflitto.
+\end{itemize}
+
+In presenza di errori di sequenziamento, però, una tale bipartizione \(R,S\) può non esistere. 
+Infatti una read può contenere un valore errato in una posizione SNP, cioè può riportare \(0\) al posto di \(1\), 
+oppure \(1\) al posto di \(0\). Questo può introdurre conflitti artificiali nella matrice dei frammenti e impedire 
+l'esistenza di una bipartizione senza conflitti. Per questo viene introdotto il modello \textbf{MEC}, 
+cioè \emph{Minimum Error Correction}.
+\\
+Il problema MEC consiste nel trovare le posizioni \((i,j)\) della matrice \(F\) da correggere in modo che, d
+opo tali correzioni, esista una bipartizione dei frammenti in due insiemi \(R\) e \(S\) senza conflitti. 
+Una correzione consiste nello \emph{switch} di un valore osservato:
+\[
+0 \leftrightarrow 1.
+\]
+Indicando con \(P\) l'insieme delle posizioni corrette, l'obiettivo del problema MEC è minimizzare il numero di tali posizioni:
+\[
+\min |P|.
+\]
+Quindi MEC cerca il minimo numero di valori della matrice da cambiare affinché sia possibile ottenere la 
+bipartizione dei frammenti nei due aplotipi.
+
+Se invece la matrice \(F\) è pesata, cioè se a ogni entry osservata \(F(i,j)\) è associato un peso
+\[
+w(i,j),
+\]
+si ottiene la versione pesata del problema, detta \textbf{WMEC}, cioè \emph{Weighted Minimum Error Correction}. 
+In questo caso il peso \(w(i,j)\) rappresenta il costo di correggere la posizione \((i,j)\). 
+L'obiettivo non è più minimizzare semplicemente il numero di correzioni, ma minimizzare la somma dei pesi delle 
+posizioni corrette. Se \(P\) è l'insieme delle posizioni di switch, allora l'obiettivo diventa:
+\[
+\min \sum_{(i,j)\in P} w(i,j).
+\]
+Di conseguenza, MEC minimizza il numero di correzioni, mentre WMEC minimizza il costo totale delle correzioni. 
+Il problema WMEC è computazionalmente difficile: è NP-difficile, e la sua versione decisionale è NP-completa.
+
+Per affrontare WMEC si può usare una programmazione dinamica sulle colonne della matrice. 
+L'idea è costruire progressivamente la soluzione considerando prima le colonne \(1,\dots,j\), 
+poi estendendo la soluzione alla colonna \(j+1\). Una soluzione ottima sulle prime \(j+1\) 
+colonne contiene una soluzione ottima sulle prime \(j\) colonne; per questo si memorizza il costo minimo 
+delle possibili sottomatrici già considerate.
+Sia
+\[
+B=(R,S)
+\]
+una bipartizione dei frammenti attivi nella colonna \(j\), cioè dei frammenti che in quella colonna non hanno il 
+simbolo ``\(-\)''. Una bipartizione successiva
+\[
+(R',S')
+\]
+estende
+\[
+(R,S)
+\]
+se conserva le assegnazioni già fatte e può eventualmente aggiungere nuovi frammenti. Formalmente:
+\[
+R' \supseteq R,
+\qquad
+S' \supseteq S.
+\]
+
+Si introduce allora il costo
+\[
+C(j,B),
+\]
+dove \(B=(R,S)\). Questo valore rappresenta il costo minimo per correggere la sottomatrice formata dalle colonne 
+\(1,\dots,j\), in modo che sia senza conflitti e sia coerente con la bipartizione \(B\) nella colonna \(j\). 
+Resta quindi da definire il costo locale di correzione di una colonna. 
+Fissata una bipartizione \((R,S)\), si indica con
+\[
+\Delta(j,(R,S))
+\]
+il costo necessario per rendere senza conflitti la colonna \(j\) rispetto alla bipartizione \((R,S)\).
+Per calcolare questo costo si definisce, per \(x\in\{0,1\}\),
+\[
+W^x(j,R)=
+\sum_{\substack{i\in R\\F(i,j)=x}} w(i,j).
+\]
+Questa quantità rappresenta la somma dei pesi delle posizioni nella colonna \(j\), 
+limitatamente ai frammenti in \(R\), che hanno valore \(x\). Analogamente si definisce \(W^x(j,S)\) 
+per i frammenti dell'insieme \(S\).
+
+Senza imporre l'ipotesi che la colonna sia eterozigote, per rendere conflict-free la colonna \(j\) si può scegliere 
+indipendentemente se portare i frammenti di \(R\) al valore \(0\) oppure al valore \(1\), e 
+lo stesso per \(S\). Per questo il costo locale è:
+\[
+\Delta(j,(R,S))
+=
+\min\{W^0(j,R),W^1(j,R)\}
++
+\min\{W^0(j,S),W^1(j,S)\}.
+\]
+Questa formula sceglie, per ciascun insieme della bipartizione, il valore che richiede il costo minore di correzione.
+Nel caso \emph{all heterozygous}, invece, si assume che le colonne considerate siano eterozigoti. 
+Quindi i due insiemi della bipartizione devono rappresentare alleli diversi. 
+Se \(R\) viene portato a \(0\), allora \(S\) deve essere portato a \(1\); se \(R\) viene portato a \(1\), 
+allora \(S\) deve essere portato a \(0\). Le due possibilità sono:
+\[
+R \to 0,\quad S \to 1,
+\]
+oppure:
+\[
+R \to 1,\quad S \to 0.
+\]
+Con questa assunzione, il costo locale diventa:
+\[
+\Delta(j,(R,S))
+=
+\min
+\left\{
+W^0(j,R)+W^1(j,S),
+\;
+W^1(j,R)+W^0(j,S)
+\right\}.
+\]
+Questa formula impone che i due gruppi della bipartizione abbiano valori opposti nella colonna \(j\), come richiesto da una posizione eterozigote.
+La ricorrenza della programmazione dinamica si basa su questa idea: per calcolare il costo fino alla colonna \(j+1\), si somma il costo locale della colonna \(j+1\) al miglior costo ottenuto fino alla colonna \(j\), considerando solo le bipartizioni compatibili. Data una bipartizione \((R,S)\) per la colonna \(F(j+1)\), si ha:
+\[
+C(j+1,(R,S))
+=
+\Delta(j+1,(R,S))
++
+\min_B C(j,B),
+\]
+dove \(B\) varia tra le bipartizioni di interesse della colonna \(j\) compatibili con \((R,S)\) sulla colonna \(j+1\).
+La compatibilità serve a garantire che i frammenti comuni tra due colonne consecutive non cambino insieme. Se un frammento compare sia nella colonna \(j\) sia nella colonna \(j+1\), e nella colonna \(j\) era assegnato a \(R\), allora deve rimanere nello stesso lato anche nella colonna successiva. Lo stesso vale per i frammenti assegnati a \(S\).
+In questo modo, WMEC viene risolto costruendo progressivamente soluzioni ottime per prefissi della matrice, mantenendo la coerenza delle bipartizioni tra colonne consecutive e minimizzando il costo totale delle correzioni.
